@@ -154,10 +154,9 @@ class BooruRawImage extends StatelessWidget {
           final imgWidth = imageWidth;
           final shouldFitWidthForTallImage = fitWidthForTallImages;
           
-          
           final fit =
               this.fit ??
-              // Always use fit width when flag is enabled
+
               (shouldFitWidthForTallImage
                   ? BoxFit.fitWidth
                   // If the image is larger than the layout, just fill it to prevent distortion
