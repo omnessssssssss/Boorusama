@@ -154,16 +154,6 @@ class BooruRawImage extends StatelessWidget {
           final imgWidth = imageWidth;
           final shouldFitWidthForTallImage = fitWidthForTallImages;
           
-          // Debug logging
-          if (fitWidthForTallImages) {
-            print('DEBUG: BooruImage - fitWidthForTallImages enabled');
-            print('DEBUG: imageWidth: $imgWidth, imageHeight: $imgHeight');
-            print('DEBUG: forceCover: $forceCover, forceFill: $forceFill');
-            print('DEBUG: shouldFitWidthForTallImage: $shouldFitWidthForTallImage');
-            print('DEBUG: this.fit: ${this.fit}');
-            print('DEBUG: aspectRatio parameter: $aspectRatio');
-            print('DEBUG: NullableAspectRatio will use: ${forceCover || this.fit == BoxFit.contain || fitWidthForTallImages ? 'null' : aspectRatio}');
-          }
           
           final fit =
               this.fit ??
@@ -182,12 +172,6 @@ class BooruRawImage extends StatelessWidget {
                       : forceCover
                           ? BoxFit.cover
                           : BoxFit.contain);
-          
-          if (fitWidthForTallImages) {
-            print('DEBUG: Final fit mode: $fit');
-            print('DEBUG: Container constraints - width: $width, height: $height');
-            print('DEBUG: ExtendedImage will receive - width: $width, height: $height, fit: $fit');
-          }
           final borderRadius = this.borderRadius ?? _defaultRadius;
 
           return imageUrl.isNotEmpty
