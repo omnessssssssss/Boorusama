@@ -30,6 +30,7 @@ class BooruImage extends ConsumerWidget {
     this.imageHeight,
     this.forceCover = false,
     this.forceFill = false,
+    this.fitWidthForTallImages = false,
     this.forceLoadPlaceholder = false,
     this.placeholderWidget,
     this.controller,
@@ -46,6 +47,7 @@ class BooruImage extends ConsumerWidget {
   final double? imageHeight;
   final bool forceCover;
   final bool forceFill;
+  final bool fitWidthForTallImages;
   final bool forceLoadPlaceholder;
   final Widget? placeholderWidget;
   final ExtendedImageController? controller;
@@ -78,6 +80,7 @@ class BooruImage extends ConsumerWidget {
       imageHeight: imageHeight,
       forceCover: forceCover,
       forceFill: forceFill,
+      fitWidthForTallImages: fitWidthForTallImages,
       isLargeImage: imageQualitySettings != ImageQuality.low,
       forceLoadPlaceholder: forceLoadPlaceholder,
       headers: ref.watch(httpHeadersProvider(config)),
@@ -102,6 +105,7 @@ class BooruRawImage extends StatelessWidget {
     this.imageHeight,
     this.forceCover = false,
     this.forceFill = false,
+    this.fitWidthForTallImages = false,
     this.headers = const {},
     this.isLargeImage = false,
     this.forceLoadPlaceholder = false,
@@ -122,6 +126,7 @@ class BooruRawImage extends StatelessWidget {
   final double? imageHeight;
   final bool forceCover;
   final bool forceFill;
+  final bool fitWidthForTallImages;
   final Map<String, String> headers;
   final bool isLargeImage;
   final bool forceLoadPlaceholder;
@@ -143,20 +148,33 @@ class BooruRawImage extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.maxWidth.roundToDouble();
           final height = constraints.maxHeight.roundToDouble();
+          
+          // Determine if we should use fit width for tall images
+          final imgHeight = imageHeight;
+          final imgWidth = imageWidth;
+          final shouldFitWidthForTallImage = fitWidthForTallImages &&
+              imgHeight != null &&
+              imgWidth != null &&
+              imgWidth > 0 &&
+              (imgHeight / imgWidth) > 1.5;
+          
           final fit =
               this.fit ??
-              // If the image is larger than the layout, just fill it to prevent distortion
-              (forceFill &&
-                      _shouldForceFill(
-                        constraints.biggest,
-                        imageWidth,
-                        imageHeight,
-                      )
-                  ? BoxFit.fill
-                  // Cover is for the standard grid that crops the image to fit the aspect ratio
-                  : forceCover
-                  ? BoxFit.cover
-                  : BoxFit.contain);
+              // For tall images (aspect ratio > 1.5), fit width to allow scrolling
+              (shouldFitWidthForTallImage
+                  ? BoxFit.fitWidth
+                  // If the image is larger than the layout, just fill it to prevent distortion
+                  : forceFill &&
+                          _shouldForceFill(
+                            constraints.biggest,
+                            imageWidth,
+                            imageHeight,
+                          )
+                      ? BoxFit.fill
+                      // Cover is for the standard grid that crops the image to fit the aspect ratio
+                      : forceCover
+                          ? BoxFit.cover
+                          : BoxFit.contain);
           final borderRadius = this.borderRadius ?? _defaultRadius;
 
           return imageUrl.isNotEmpty
